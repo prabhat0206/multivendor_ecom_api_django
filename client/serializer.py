@@ -12,10 +12,14 @@ class OptionSerializerWithImage(OptionSerializer):
 
 class ProductWithOptionSerializer(ProductSerializer):
     option_set = OptionSerializerWithImage(many=True)
+    review_count = SerializerMethodField()
+
+    def get_review_count(self, instance):
+        return len(instance.review_set.all())
 
 
 class ProductWithReviewAndOption(ProductWithOptionSerializer):
-    reviews_set = ReviewSerializer(many=True)
+    review_set = ReviewSerializer(many=True)
 
 
 class ProductByGender(GenderSerializer):

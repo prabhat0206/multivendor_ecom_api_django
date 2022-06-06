@@ -6,6 +6,21 @@ from rest_framework.response import Response
 from rest_framework.parsers import FormParser, MultiPartParser
 
 
+class CreateWithAuthentication(generics.ListCreateAPIView):
+
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        data = request.data
+        data['vendor'] = request.user.id
+        serialized = self.serializer_class(data=data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response({"success": True, "data": serialized.data})
+        else:
+            return Response({"success": False, "error": serialized.errors})
+
+
 class CategoryApi(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -37,17 +52,7 @@ class UpdateDeleteSubCategoryApi(generics.RetrieveUpdateDestroyAPIView):
 class ProductApi(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAdminUser]
 
-    def post(self, request):
-        data = request.data
-        data['vendor'] = request.user.id
-        serialized = self.serializer_class(data=data)
-        if serialized.is_valid():
-            serialized.save()
-            return Response({"success": True, "data": serialized.data})
-        else:
-            return Response({"success": False, "error": serialized.errors})
 
 
 class UpdateDeleteProductApi(generics.RetrieveUpdateDestroyAPIView):

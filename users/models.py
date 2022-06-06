@@ -1,3 +1,4 @@
+from pydoc import describe
 from django.db import models
 # from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
@@ -124,4 +125,11 @@ class Address(models.Model):
     country = models.CharField(max_length=100)
     ph_number = PhoneNumberField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class VendorShop(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    vendor = models.OneToOneField(User, on_delete=models.CASCADE)
 
