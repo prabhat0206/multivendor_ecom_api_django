@@ -204,3 +204,18 @@ class WishList(APIView):
             wishlist_products.remove(is_exist)
             return JsonResponse({"success": True}, safe=False)
         return HttpResponse(404)
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def login_with_ph_number(request):
+    data = request.data
+    user = User.objects.filter(ph_number=data.get('ph_number')).first()
+    if (user):
+        if user.check_password(data["password"]):
+            try:
+                return Response({"success": True, "token": user.auth_token.key, "user": UserSerializer(user).data})
+            except Exception as e:
+                print(e)
+    return Response({"success": False, "error": "Server unable to authenticate you"})
+

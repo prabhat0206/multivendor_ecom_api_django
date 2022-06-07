@@ -68,16 +68,19 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100)
-    username = models.CharField(max_length=32, unique=True)
+    username = models.CharField(max_length=32, unique=True, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     profile_pic = models.ImageField(upload_to="profile", null=True, blank=True)
     ph_number = PhoneNumberField(unique=True)
     active = models.BooleanField(default=True)
+    vendor = models.BooleanField(default=False)
     staff = models.BooleanField(default=False)
     superuser = models.BooleanField(default=False)
-    delivery_boy = models.BooleanField(default=False)
     referal_code = models.CharField(max_length=10, null=True, blank=True)
     earned_points = models.IntegerField(default=0)
+    date_of_birth = models.DateField(null=True, blank=True)
+    last_otp_ph_number = models.IntegerField(null=True, blank=True)
+    last_otp_email = models.IntegerField(null=True, blank=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['ph_number', 'name', 'email']
@@ -106,12 +109,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.staff
 
     @property
-    def is_delivery_boy(self):
-        return self.delivery_boy
+    def is_vendor(self):
+        return self.vendor
 
     def save(self, *args, **kwargs):
         if not (self.referal_code):
             self.referal_code = generate_referel_code()
+        if not (self.username):
+            self.username = str(self.ph_number)
         super(User, self).save(*args, **kwargs)
 
 

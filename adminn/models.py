@@ -5,6 +5,7 @@ import string, random
 class Banner(models.Model):
     id = models.AutoField(primary_key=True)
     image = models.ImageField(upload_to='banners')
+    name = models.CharField(max_length=255)
 
 
 class Category(models.Model):

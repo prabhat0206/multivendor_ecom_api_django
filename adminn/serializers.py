@@ -1,5 +1,3 @@
-from dataclasses import field
-from re import L
 from rest_framework.serializers import ModelSerializer
 from adminn.models import *
 

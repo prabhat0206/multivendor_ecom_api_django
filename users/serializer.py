@@ -1,6 +1,6 @@
 from dataclasses import fields
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from .models import User
 from client.models import Cart, MidOrder, Order, OrderStatus
 from .models import Address
 from adminn.serializers import ProductSerializer, OptionSerializer, ImageSerializer
@@ -15,12 +15,29 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
-    # address_set = AddressSerializer(many=True)
-    
     class Meta:
         model = User
         exclude = ['user_permissions', 'groups']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            },
+            'superuser': {
+                'write_only': True
+            }, 
+            'vendor': {
+                'write_only': True
+            }, 
+            'staff': {
+                'write_only': True
+            }, 
+            'last_otp_ph_number': {
+                'write_only': True
+            }, 
+            'last_otp_email': {
+                'write_only': True
+            }
+        }
     
     def create(self, validated_data):
         user = super(UserSerializer, self).create(validated_data)
@@ -63,6 +80,12 @@ class OrderStatusSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserWithLimit(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["name", "ph_number"]
+
+
 class OrderWithLimit(serializers.ModelSerializer):
     class Meta:
         model = Order
@@ -76,4 +99,12 @@ class MidOrderWithStatusSerializer(MidOrderSerializer):
 
 class OrderWithMidOrder(OrderSerializer):
     midorder_set = MidOrderSerializer(many=True)
+
+
+class OrderWithUser(OrderSerializer):
+    user = UserWithLimit()
+
+class MidOrderWithOrder(MidOrderSerializer):
+    order = OrderWithUser()
+
 
