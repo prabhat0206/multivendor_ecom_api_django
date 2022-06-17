@@ -1,8 +1,128 @@
-from rest_framework import generics, response, permissions, views
+from gettext import install
+from operator import ge
+from rest_framework.response import Response
+from rest_framework import generics, response, permissions, views, parsers
 from adminn.models import *
 from adminn.serializers import *
-from client.models import MidOrder
+from client.models import MidOrder, Order
 from client.serializer import ProductWithOptionSerializer
+from users.serializer import MidOrderWithOrder
+
+class SubCategoryApi(generics.ListAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+    pagination_class = None
+
+
+class BrandApi(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BannerSerializer
+    pagination_class = None
+
+
+class ProductApiVendor(generics.ListCreateAPIView):
+
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(vendor=self.request.user).order_by('-pid')
+
+    def post(self, request):
+        data = request.data.dict()
+        data["vendor"] = request.user.id
+        serialized = self.serializer_class(data=data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response({"success": True, "data": serialized.data})
+        return Response({"success": False, "error": serialized.errors})
+
+
+class ProductUpdateDeleteAPi(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get_object(self):
+        instance = self.get_queryset().filter(pid=self.kwargs.get("pk")).first()
+        if instance.vendor == self.request.vendor:
+            return instance
+        return Response(401)
+    
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.save()
+        return Response(204)
+
+
+class OptionAPi(generics.ListCreateAPIView):
+    queryset = Option.objects.all()
+    serializer_class = OptionSerializer
+
+    def post(self, request):
+        data = request.data.dict()
+        product = Product.objects.filter(pid=data["product"]).first()
+        if product:
+            if product.vendor == self.request.user:
+                serialized = self.serializer_class(data=data)
+                if serialized.is_valid():
+                    serialized.save()
+                    return Response({"success": True, "data": serialized.data})
+                return Response({"sucess": False, "error": serialized.errors})
+            return Response(401)
+        return Response(404)
+
+
+class OptionUpdateDeleteApi(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = Option.objects.all()
+    serializr_class = OptionSerializer
+
+    def get_object(self):
+        instance = self.get_queryset().filter(id=self.kwargs.get("pk")).first()
+        if instance.product.vendor == self.request.vendor:
+            return instance
+        return Response(401)
+
+    def delete(self):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.save()
+        return Response(204)
+
+
+class ProductImageAPi(generics.ListCreateAPIView):
+    queryset = ProductImage.objects.all()
+    serializer_class = ImageSerializer
+    parser_classes = [parsers.FormParser, parsers.MultiPartParser]
+
+    def post(self, request):
+        data = request._request.POST.dict()
+        image = request._request.FILES.get("image")
+        if not image:
+            return Response(400)
+        data["image"] = image
+        option = Option.objects.filter(id=data["option"]).first()
+        if option:
+            if option.product.vendor == self.request.user:
+                serialized = self.serializer_class(data=data)
+                if serialized.is_valid():
+                    serialized.save()
+                    return Response({"success": True, "data": serialized.data})
+                return Response({"sucess": False, "error": serialized.errors})
+            return Response(401)
+        return Response(404)
+
+
+class ProductImageDelete(generics.DestroyAPIView):
+    queryset = ProductImage.objects.all()
+    serializer_class = ImageSerializer
+
+    def get_object(self):
+        instance = self.get_queryset().filter(img_id=self.kwargs.get("pk")).first()
+        if instance.option.product.vendor == self.request.vendor:
+            return instance
+        return Response(401) 
 
 
 class ProductWithReviewsCount(generics.ListAPIView):
@@ -37,4 +157,23 @@ class EarningsVendor(views.APIView):
             "earnings": earnings.total_amount if earnings else 0 
         }
         return response.Response(res)
+
+
+class OrderByVendor(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = MidOrderWithOrder
+
+    def get_queryset(self):
+        return super().get_queryset().filter(product__vendor=self.request.vendor).order_by("-mid")
+
+
+class OrderByStatus(generics.ListAPIView):
+    queryset = MidOrder.objects.all()
+    serializer_class = MidOrderWithOrder
+    # permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        return super().get_queryset().filter(product__vendor=self.request.user).filter(status=self.kwargs.get('status')).order_by('-mid')
+
+
 
