@@ -15,6 +15,9 @@ class Category(models.Model):
     orders = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
 
 class SubCategory(models.Model):
     scid = models.AutoField(primary_key=True)
@@ -24,6 +27,8 @@ class SubCategory(models.Model):
     orders = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
 
 class Brand(models.Model):
     bid = models.AutoField(primary_key=True)
@@ -32,10 +37,15 @@ class Brand(models.Model):
     image = models.ImageField(upload_to='brands')
     is_deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
 
 class Gender(models.Model):
     name = models.CharField(max_length=255)
-
+    
+    def __str__(self):
+        return self.name
 
 def calcuate_discount(data):
     return ((data.actual_price - data.sale_price) / data.actual_price) * 100
