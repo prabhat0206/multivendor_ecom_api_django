@@ -1,6 +1,22 @@
 from django.contrib import admin
 from .models import *
 
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ["name", "is_deleted"]
+
+
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ["name", "is_deleted"]
+
+
+class SubCategoryAdmin(admin.ModelAdmin):
+    list_display = ["name", "is_deleted"]
+
+
+class GenderAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+
+
 # Register your models here.
 admin.site.register(Category)
 admin.site.register(Brand)
