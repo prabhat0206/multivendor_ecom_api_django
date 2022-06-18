@@ -109,3 +109,9 @@ class ProductByCategory(ProductBySubCategory):
 
     def get_queryset(self):
         return super().get_queryset().filter(category=self.kwargs.get("cid")).order_by("-orders")
+
+
+class Banners(generics.ListAPIView):
+    queryset = Banner.objects.all().filter(name="homepage")
+    serializer_class = BannerSerializer
+    pagination_class = None
