@@ -18,12 +18,12 @@ class GenderAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
-admin.site.register(Category)
-admin.site.register(Brand)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Brand, BrandAdmin)
 admin.site.register(Product)
 admin.site.register(Option)
 admin.site.register(ProductImage)
 admin.site.register(Review)
-admin.site.register(Gender)
-admin.site.register(SubCategory)
+admin.site.register(Gender, GenderAdmin)
+admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(Banner)
