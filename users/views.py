@@ -85,7 +85,7 @@ class OrderApi(generics.ListCreateAPIView):
                 option = Option.objects.filter(id=product["id"]).first()
                 if option:
                     mid_order = {
-                        "pid": option.id,
+                        "product": option.id,
                         "order": order.data["oid"],
                         "unit_size": option.unit_size,
                         "product_price": option.product.sale_price,

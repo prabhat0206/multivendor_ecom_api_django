@@ -112,7 +112,7 @@ def update_order_status(request):
             return Response(401)
         order.status = data["status"]
         order.save()
-        new_status = OrderStatus(status=order.status, mid=order.mid)
+        new_status = OrderStatus(status=order.status, midorder=order)
         new_status.save()
         return Response(MidOrderSerializer(order).data)
     except Exception as e:
