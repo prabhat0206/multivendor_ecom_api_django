@@ -31,4 +31,4 @@ class MidOrderSerializer(ModelSerializer):
     
     class Meta:
         model = MidOrder
-        fields = ["mid", "product_price", "is_canceled", "status", "order"]
+        fields = ["mid", "product_price", "is_canceled", "status", "order", "delivered_assigned_day"]
