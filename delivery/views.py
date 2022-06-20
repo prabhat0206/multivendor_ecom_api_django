@@ -125,6 +125,6 @@ def update_order_status(request):
 @check_delivery_auth
 def delivery_details(request):
     data = DeliveryBoySerializer(request.user).data
-    data["total_delivered"] = len(request.user.midorder_set.filter(status__in=["delivered", "compleated"]))
+    data["total_delivered"] = len(request.user.midorder_set.filter(status__iregex=r'(' + '|'.join(["delivered", "compleated"]) + ')'))
     return Response(data)
 
