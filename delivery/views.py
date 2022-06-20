@@ -106,13 +106,18 @@ def update_order_status(request):
     try:
         data = request.GET
         order = MidOrder.objects.filter(mid=data["mid"]).first()
+        if not order:
+            return Response(404)
+        if order.delivered_by != request.user:
+            return Response(401)
         order.status = data["status"]
         order.save()
         new_status = OrderStatus(status=order.status, mid=order.mid)
         new_status.save()
         return Response(MidOrderSerializer(order).data)
-    except:
-        pass
+    except Exception as e:
+        print(e)
+        return Response(500)
 
 
 @api_view(["GET"])
