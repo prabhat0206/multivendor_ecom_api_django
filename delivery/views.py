@@ -124,5 +124,7 @@ def update_order_status(request):
 @permission_classes([AllowAny])
 @check_delivery_auth
 def delivery_details(request):
-    return Response(DeliveryBoySerializer(request.user).data)
+    data = DeliveryBoySerializer(request.user).data
+    data["total_delivered"] = len(request.user.midorder_set.filter(status__in=["delivered", "compleated"]))
+    return Response(data)
 
