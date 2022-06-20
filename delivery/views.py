@@ -1,9 +1,10 @@
+from os import stat
 from rest_framework.generics import ListAPIView
 from functools import wraps
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from client.models import MidOrder
+from client.models import MidOrder, OrderStatus
 from .models import DeliveryBoy
 from .serializers import DeliveryBoySerializer, MidOrderSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -102,7 +103,16 @@ class OrderByStatus(ListAPIView):
 @permission_classes([AllowAny])
 @check_delivery_auth
 def update_order_status(request):
-    pass
+    try:
+        data = request.GET
+        order = MidOrder.objects.filter(mid=data["mid"]).first()
+        order.status = data["status"]
+        order.save()
+        new_status = OrderStatus(status=order.status, mid=order.mid)
+        new_status.save()
+        return Response(MidOrderSerializer(order).data)
+    except:
+        pass
 
 
 @api_view(["GET"])
