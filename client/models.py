@@ -41,7 +41,7 @@ class MidOrder(models.Model):
     is_canceled = models.BooleanField(default=False)
     status = models.CharField(max_length=255, default="order_placed")
     delivered_by = models.ForeignKey(DeliveryBoy, on_delete=models.SET_NULL, null=True, blank=True)
-
+    delivered_assigned_day = models.DateTimeField(null=True, blank=True)
 
 class OrderStatus(models.Model):
     id = models.AutoField(primary_key=True)
