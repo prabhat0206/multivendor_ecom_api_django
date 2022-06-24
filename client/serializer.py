@@ -97,6 +97,7 @@ class BrandSerializerWithOffer(BrandSerializer):
     max_price = SerializerMethodField()
     min_price = SerializerMethodField()
     product = SerializerMethodField()
+    products_count = SerializerMethodField()
     
     def get_max_price(self, instance):
         max_price = instance.product_set.aggregate(models.Max('sale_price'))
@@ -109,4 +110,7 @@ class BrandSerializerWithOffer(BrandSerializer):
     def get_product(self, instance):
         product = ProductWithOptionSerializer(instance.product_set.order_by('-orders').first()).data
         return product
+    
+    def get_products_count(self, instance):
+        return instance.product_set.count()
 
