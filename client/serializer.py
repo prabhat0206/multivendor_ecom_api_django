@@ -69,6 +69,7 @@ class SubCategoryWithOffer(SubCategorySerializer):
     max_discount = SerializerMethodField()
     min_discount = SerializerMethodField()
     product = SerializerMethodField()
+    image = SerializerMethodField()
     
     def get_max_discount(self, instance):
         max_price = instance.product_set.aggregate(models.Max('discount'))
@@ -81,6 +82,15 @@ class SubCategoryWithOffer(SubCategorySerializer):
     def get_product(self, instance):
         product = ProductWithOptionSerializer(instance.product_set.order_by('-orders').first()).data
         return product
+    
+    def get_image(self, instance):
+        try:
+            image = instance.product_set.order_by('-orders')\
+                .first().option_set.first()\
+                    .productimage_set.first().image.url
+        except:
+            image = instance.image.url
+        return image
 
 
 class BrandSerializerWithOffer(BrandSerializer):
