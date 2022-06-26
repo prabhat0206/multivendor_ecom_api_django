@@ -96,7 +96,7 @@ class OrderWithLimit(serializers.ModelSerializer):
 class MidOrderWithStatusSerializer(MidOrderSerializer):
     orderstatus_set = OrderStatusSerializer(many=True)
     order = OrderWithLimit()
-    product = ProductWithOptionSerializer
+    product = ProductWithOptionSerializer()
 
 
 class OrderWithMidOrder(OrderSerializer):
