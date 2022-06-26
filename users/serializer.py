@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import User
 from client.models import Cart, MidOrder, Order, OrderStatus
 from .models import Address
+from client.serializer import ProductWithOptionSerializer
 from adminn.serializers import ProductSerializer, OptionSerializer, ImageSerializer
 
 
@@ -95,6 +96,7 @@ class OrderWithLimit(serializers.ModelSerializer):
 class MidOrderWithStatusSerializer(MidOrderSerializer):
     orderstatus_set = OrderStatusSerializer(many=True)
     order = OrderWithLimit()
+    product = ProductWithOptionSerializer
 
 
 class OrderWithMidOrder(OrderSerializer):
