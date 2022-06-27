@@ -5,12 +5,14 @@ from client.models import Product
 from django.db import models
 from client.serializer import ProductWithOptionSerializer
 from django.db.models import Q
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 
 # get search parameter for products
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_search_parameter(request):
     query = request.GET.get('query')
     top_brands = Brand.objects.filter(product__name__icontains=query).order_by("-orders")[:5]
@@ -19,6 +21,7 @@ def get_search_parameter(request):
         "top_brands": BrandSerializer(top_brands, many=True).data,
         "genders": GenderSerializer(genders, many=True).data
     })
+
 
 class SearchPageView(ListAPIView):
     queryset = Product.objects.all().filter(is_deleted=False)
@@ -37,7 +40,7 @@ class SearchPageView(ListAPIView):
             q_filter = Q(name__icontains=query) | Q(brand__name__icontains=query) | Q(category__name__icontains=query) | Q(subcategory__name__icontains=query) | Q(description__icontains=query) | Q(specification__icontains=query)
             self.queryset = self.queryset.filter(q_filter)
         if brand:
-            self.queryset = self.queryset.filter(brand=brand)
+            self.queryset = self.queryset.filter(brand__name=brand)
         if price:
             self.queryset = self.queryset.filter(sale_price__gte=price)
         if gender:
