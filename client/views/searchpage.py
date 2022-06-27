@@ -32,7 +32,6 @@ class SearchPageView(ListAPIView):
         # color = request.GET.get('color')
         gender = request.GET.get('gender')
         sort_by = request.GET.get('sort_by')
-        filter = ""
         self.queryset = self.queryset
         if query:
             q_filter = Q(name__icontains=query) | Q(brand__name__icontains=query) | Q(category__name__icontains=query) | Q(subcategory__name__icontains=query) | Q(description__icontains=query) | Q(specification__icontains=query)
