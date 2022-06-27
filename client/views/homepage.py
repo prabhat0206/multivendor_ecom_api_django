@@ -107,17 +107,20 @@ class SubCategoryAPi(generics.ListAPIView):
 
 class ProductBySubCategory(generics.ListAPIView):
 
-    queryset = Product.objects.all().filter(is_deleted=False)
+    queryset = SubCategory.objects.all().filter(is_deleted=False)
     serializer_class = ProductWithOptionSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(subcategory=self.kwargs.get("pk")).order_by("-orders")
+        queryset = self.queryset.filter(scid=self.kwargs.get("pk")).filter().product_set.filter(is_deleted=False).order_by('-orders')
+        return queryset
 
 
 class ProductByCategory(ProductBySubCategory):
+    queryset = Category.objects.all().filter(is_deleted=False)
 
     def get_queryset(self):
-        return super().get_queryset().filter(category=self.kwargs.get("pk")).order_by("-orders")
+        queryset = self.queryset.filter(cid=self.kwargs.get("pk")).filter().product_set.filter(is_deleted=False).order_by('-orders')
+        return queryset
 
 
 class Banners(generics.ListAPIView):
