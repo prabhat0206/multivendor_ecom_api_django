@@ -17,7 +17,7 @@ def get_search_parameter(request):
     query = request.GET.get('q')
     if not query:
         return Response(400)
-    top_brands = Brand.objects.filter(product__name__icontains=query).order_by("-orders")[:5]
+    top_brands = Brand.objects.filter(Q(product__name__icontains=query)|Q(product__subcategory__name__icontains=query)|Q(product__category__name__icontains=query)).order_by("-orders")[:5]
     genders = Gender.objects.all()
     return Response({
         "top_brands": BrandSerializer(top_brands, many=True).data,
