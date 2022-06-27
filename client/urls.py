@@ -8,4 +8,8 @@ urlpatterns = [
     path('product/<pk>', ProductPageView.as_view(), name="product"),
     path('recommended_products', RecommendedForYou.as_view(), name="recommended"),
     path('banners', Banners.as_view(), name="banners"),
+    path('search', SearchPageView.as_view(), name="search"),
+    path('sub_product/<int:pk>', ProductBySubCategory.as_view(), name="sub_product"),
+    path('category/<int:pk>', ProductByCategory.as_view(), name="category"),
+    path('search_params', get_search_parameter, name="search_params"),
 ]

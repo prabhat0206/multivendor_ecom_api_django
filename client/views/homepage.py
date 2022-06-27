@@ -6,6 +6,7 @@ from client.serializer import *
 from rest_framework.response import Response
 from datetime import datetime
 import random
+from client.models import MidOrder
 
 class TopDeal(generics.ListAPIView):
     queryset = Product.objects.all().filter(is_deleted=False)
@@ -58,17 +59,25 @@ class ProductPageView(generics.RetrieveAPIView):
     serializer_class = ProductWithReviewAndOption
 
 
-
-# TODO filter from user's ordered category
 class RecommendedForYou(generics.ListAPIView):
     queryset = Product.objects.all().filter(is_deleted=False)
     serializer_class = SubCategoryWithOffer
 
     def get(self, request):
-        if request.user:
-            pass
-        
         instance = self.get_queryset().annotate(wishlisted=models.Count('user')).order_by('-wishlisted')
+
+        if request.user:
+            instance_orders = MidOrder.objects.all().filter(order__user=request.user).order_by('-id')
+            for data in instance_orders:
+                if data.subcategory not in subcategories:
+                    subcategories.append(data.subcategory)
+            for data in instance:
+                if data.subcategory not in subcategories:
+                    subcategories.append(data.subcategory)
+            serialized = self.serializer_class(subcategories, many=True)
+            paginated = self.paginate_queryset(serialized.data)
+            return self.get_paginated_response(paginated)
+        
         subcategories = []
         for data in instance:
             if data.subcategory not in subcategories:
@@ -102,16 +111,18 @@ class ProductBySubCategory(generics.ListAPIView):
     serializer_class = ProductWithOptionSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(subcategory=self.kwargs.get("scid")).order_by("-orders")
+        return super().get_queryset().filter(subcategory=self.kwargs.get("pk")).order_by("-orders")
 
 
 class ProductByCategory(ProductBySubCategory):
 
     def get_queryset(self):
-        return super().get_queryset().filter(category=self.kwargs.get("cid")).order_by("-orders")
+        return super().get_queryset().filter(category=self.kwargs.get("pk")).order_by("-orders")
 
 
 class Banners(generics.ListAPIView):
     queryset = Banner.objects.all().filter(name="homepage")
     serializer_class = BannerSerializer
     pagination_class = None
+
+
