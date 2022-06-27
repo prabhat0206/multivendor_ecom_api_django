@@ -14,7 +14,9 @@ from rest_framework.response import Response
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_search_parameter(request):
-    query = request.GET.get('query')
+    query = request.GET.get('q')
+    if not query:
+        return Response(400)
     top_brands = Brand.objects.filter(product__name__icontains=query).order_by("-orders")[:5]
     genders = Gender.objects.all()
     return Response({
