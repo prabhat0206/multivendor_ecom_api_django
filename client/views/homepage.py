@@ -111,7 +111,7 @@ class ProductBySubCategory(generics.ListAPIView):
     serializer_class = ProductWithOptionSerializer
 
     def get_queryset(self):
-        queryset = self.queryset.filter(scid=self.kwargs.get("pk")).filter().product_set.filter(is_deleted=False).order_by('-orders')
+        queryset = self.queryset.filter(scid=self.kwargs.get("pk")).first().product_set.filter(is_deleted=False).order_by('-orders')
         return queryset
 
 
@@ -119,7 +119,7 @@ class ProductByCategory(ProductBySubCategory):
     queryset = Category.objects.all().filter(is_deleted=False)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(cid=self.kwargs.get("pk")).filter().product_set.filter(is_deleted=False).order_by('-orders')
+        queryset = self.queryset.filter(cid=self.kwargs.get("pk")).first().product_set.filter(is_deleted=False).order_by('-orders')
         return queryset
 
 
