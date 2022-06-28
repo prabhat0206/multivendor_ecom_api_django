@@ -65,8 +65,7 @@ class RecommendedForYou(generics.ListAPIView):
 
     def get(self, request):
         instance = self.get_queryset().annotate(wishlisted=models.Count('user')).order_by('-wishlisted')
-
-        if request.user:
+        if request.user.is_authenticated:
             instance_orders = MidOrder.objects.all().filter(order__user=request.user).order_by('-id')
             for data in instance_orders:
                 if data.subcategory not in subcategories:
