@@ -12,4 +12,6 @@ urlpatterns = [
     path('sub_product/<int:pk>', ProductBySubCategory.as_view(), name="sub_product"),
     path('category/<int:pk>', ProductByCategory.as_view(), name="category"),
     path('search_params', get_search_parameter, name="search_params"),
+    path('category_list', CategoryByOrders.as_view(), name="category_list"),
+    path('sub_category_list', SubCategoryByOrders.as_view(), name="sub_category_list"),
 ]

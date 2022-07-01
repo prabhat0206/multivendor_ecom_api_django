@@ -134,3 +134,11 @@ class Banners(generics.ListAPIView):
     pagination_class = None
 
 
+class CategoryByOrders(generics.ListAPIView):
+    queryset = Category.objects.all().order_by('-orders').filter(is_deleted=False)
+    serializer_class = CategorySerializer
+
+
+class SubCategoryByOrders(generics.ListAPIView):
+    queryset = SubCategory.objects.all().order_by('-orders').filter(is_deleted=False)
+    serializer_class = SubCategorySerializer
