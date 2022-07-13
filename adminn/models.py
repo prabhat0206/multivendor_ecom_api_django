@@ -101,7 +101,7 @@ class Product(models.Model):
     slug = models.SlugField(unique=True, null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="of_products")
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="of_products", null=True, blank=True)
 
     objects = CustomManager()
 
