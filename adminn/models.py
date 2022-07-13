@@ -145,4 +145,4 @@ class Review(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     rating = models.DecimalField(decimal_places=1, max_digits=2, default=1.0)
     is_verified = models.BooleanField(default=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
