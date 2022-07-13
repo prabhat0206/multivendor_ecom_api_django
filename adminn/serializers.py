@@ -8,14 +8,28 @@ class BannerSerializer(ModelSerializer):
         fields = '__all__'
 
 class CategorySerializer(ModelSerializer):
+    product_count = SerializerMethodField()
     class Meta:
         model = Category
         fields = '__all__'
+        extra_kwargs = {
+            'product_count': {'read_only': True}
+        }
+
+    def get_product_count(self, instance):
+        return instance.product_set.count()
 
 class SubCategorySerializer(ModelSerializer):
+    product_count = SerializerMethodField()
     class Meta:
         model = SubCategory
         fields = '__all__'
+        extra_kwargs = {
+            'product_count': {'read_only': True}
+        }
+
+    def get_product_count(self, instance):
+        return instance.product_set.count()
 
 class BrandSerializer(ModelSerializer):
     class Meta:
