@@ -13,16 +13,8 @@ class CreateWithAuthentication(generics.ListCreateAPIView):
 
     permission_classes = [IsAdminUser]
 
-    def post(self, request):
-        data = request.data
-        data['vendor'] = request.user.id
-        serialized = self.serializer_class(data=data)
-        if serialized.is_valid():
-            serialized.save()
-            return Response({"success": True, "data": serialized.data})
-        else:
-            return Response({"success": False, "error": serialized.errors})
-
+    def perform_create(self, serializer):
+        serializer.save(vendor=self.request.user)
 
 
 class EditDelete(generics.RetrieveUpdateDestroyAPIView):
