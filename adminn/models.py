@@ -140,7 +140,7 @@ class ProductImage(models.Model):
 
 class Review(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews", null=True, blank=True)
     message = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
     rating = models.DecimalField(decimal_places=1, max_digits=2, default=1.0)
