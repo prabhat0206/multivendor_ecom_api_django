@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from adminn.models import *
 
 
@@ -42,8 +42,16 @@ class ImageSerializer(ModelSerializer):
         model = ProductImage
         fields = '__all__'
 
+
 class ReviewSerializer(ModelSerializer):
+    name = SerializerMethodField()
     class Meta:
         model = Review
         fields = '__all__'
+        extra_kwargs = {
+            'user': {'read_only': True},
+        }
+
+    def get_name(self, instance):
+        return instance.user.name
 

@@ -26,7 +26,7 @@ def get_search_parameter(request):
 
 
 class SearchPageView(ListAPIView):
-    queryset = Product.objects.all().filter(is_deleted=False)
+    queryset = Product.objects.all()
     serializer_class = ProductWithOptionSerializer
 
     def get(self, request):

@@ -9,7 +9,7 @@ import random
 from client.models import MidOrder
 
 class TopDeal(generics.ListAPIView):
-    queryset = Product.objects.all().filter(is_deleted=False)
+    queryset = Product.objects.all()
     serializer_class = SubCategoryWithOffer
 
     def get(self, request):
@@ -25,7 +25,7 @@ class TopDeal(generics.ListAPIView):
 
 class TopViewOfHomePage(generics.ListAPIView):
     
-    queryset = Product.objects.all().filter(is_deleted=False)
+    queryset = Product.objects.all()
     serializer_class = SubCategoryWithOffer
 
     def get(self, request):
@@ -55,12 +55,12 @@ class TopViewOfHomePage(generics.ListAPIView):
 
 class ProductPageView(generics.RetrieveAPIView):
     
-    queryset = Product.objects.all().filter(is_deleted=False)
+    queryset = Product.objects.all()
     serializer_class = ProductWithReviewAndOption
 
 
 class RecommendedForYou(generics.ListAPIView):
-    queryset = Product.objects.all().filter(is_deleted=False)
+    queryset = Product.objects.all()
     serializer_class = SubCategoryWithOffer
 
     def get(self, request):
@@ -88,41 +88,41 @@ class RecommendedForYou(generics.ListAPIView):
 
 class TopBrandView(generics.ListAPIView):
 
-    queryset = Brand.objects.all().order_by('-orders').filter(is_deleted=False)
+    queryset = Brand.objects.all().order_by('-orders')
     serializer_class = BrandSerializerWithOffer
 
 
 class CategoryAPi(generics.ListAPIView):
 
-    queryset = Category.objects.all().order_by('-orders').filter(is_deleted=False)
+    queryset = Category.objects.all().order_by('-orders')
     serializer_class = CategorySerializer
 
 
 class SubCategoryAPi(generics.ListAPIView):
 
-    queryset = SubCategory.objects.all().order_by('-orders').filter(is_deleted=False)
+    queryset = SubCategory.objects.all().order_by('-orders')
     serializer_class = SubCategorySerializer
 
 
 class ProductBySubCategory(generics.ListAPIView):
 
-    queryset = SubCategory.objects.all().filter(is_deleted=False)
+    queryset = SubCategory.objects.all()
     serializer_class = ProductWithOptionSerializer
 
     def get_queryset(self):
         try:
-            queryset = self.queryset.filter(scid=self.kwargs.get("pk")).first().product_set.filter(is_deleted=False).order_by('-orders')
+            queryset = self.queryset.filter(scid=self.kwargs.get("pk")).first().product_set.order_by('-orders')
             return queryset
         except:
             return []
 
 
 class ProductByCategory(ProductBySubCategory):
-    queryset = Category.objects.all().filter(is_deleted=False)
+    queryset = Category.objects.all()
 
     def get_queryset(self):
         try:
-            queryset = self.queryset.filter(cid=self.kwargs.get("pk")).first().product_set.filter(is_deleted=False).order_by('-orders')
+            queryset = self.queryset.filter(cid=self.kwargs.get("pk")).first().product_set.order_by('-orders')
             return queryset
         except:
             return []
@@ -135,10 +135,10 @@ class Banners(generics.ListAPIView):
 
 
 class CategoryByOrders(generics.ListAPIView):
-    queryset = Category.objects.all().order_by('-orders').filter(is_deleted=False)
+    queryset = Category.objects.all().order_by('-orders')
     serializer_class = CategorySerializer
 
 
 class SubCategoryByOrders(generics.ListAPIView):
-    queryset = SubCategory.objects.all().order_by('-orders').filter(is_deleted=False)
+    queryset = SubCategory.objects.all().order_by('-orders')
     serializer_class = SubCategorySerializer

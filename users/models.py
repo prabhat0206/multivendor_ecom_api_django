@@ -81,6 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_of_birth = models.DateField(null=True, blank=True)
     last_otp_ph_number = models.IntegerField(null=True, blank=True)
     last_otp_email = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['ph_number', 'name', 'email']

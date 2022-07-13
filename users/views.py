@@ -219,3 +219,15 @@ def login_with_ph_number(request):
                 print(e)
     return Response({"success": False, "error": "Server unable to authenticate you"})
 
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def change_password(request):
+    data = request.data
+    user = request.user
+    if (user):
+        if user.check_password(data["old_password"]):
+            user.set_password(data["new_password"])
+            user.save()
+            return Response({"success": True})
+    return Response({"success": False, "error": "Server unable to authenticate you"})

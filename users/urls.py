@@ -11,4 +11,5 @@ urlpatterns = [
     path("order/<int:pk>", UpdateStatus.as_view(), name="update_status"),
     path("login", login_with_ph_number, name="login"),
     path("details", UserDetails.as_view(), name="details"),
+    path("change_password", change_password, name="change_password"),
 ]

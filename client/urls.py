@@ -14,4 +14,5 @@ urlpatterns = [
     path('search_params', get_search_parameter, name="search_params"),
     path('category_list', CategoryByOrders.as_view(), name="category_list"),
     path('sub_category_list', SubCategoryByOrders.as_view(), name="sub_category_list"),
+    path('reviews', ReviewsByProductApi.as_view(), name="reviews"),
 ]

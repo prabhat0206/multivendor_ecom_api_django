@@ -11,14 +11,24 @@ class OptionSerializerWithImage(OptionSerializer):
 
 
 class ProductWithOptionSerializer(ProductSerializer):
-    option_set = OptionSerializerWithImage(many=True)
     review_count = SerializerMethodField()
+    image = SerializerMethodField()
+    brand = BrandSerializer()
 
     def get_review_count(self, instance):
         return len(instance.review_set.all())
+    
+    def get_image(self, instance):
+        try:
+            image = instance.option_set.first()\
+                    .productimage_set.first().image.url
+        except:
+            image = ""
+        return image
 
 
 class ProductWithReviewAndOption(ProductWithOptionSerializer):
+    option_set = OptionSerializerWithImage(many=True)
     review_set = ReviewSerializer(many=True)
 
 
@@ -46,11 +56,10 @@ class BrandWithProducts(BrandSerializer):
     product_set = ProductWithOptionSerializer(many=True)
 
 
-
 class CategoryWithOffer(CategorySerializer):
     max_price = SerializerMethodField()
     min_price = SerializerMethodField()
-    product = SerializerMethodField()
+    image = SerializerMethodField()
     
     def get_max_price(self, instance):
         max_price = instance.product_set.aggregate(models.Max('sale_price'))
@@ -60,15 +69,19 @@ class CategoryWithOffer(CategorySerializer):
         min_price = instance.product_set.aggregate(models.Min('sale_price'))
         return min_price
 
-    def get_product(self, instance):
-        product = ProductWithOptionSerializer(instance.product_set.order_by('-orders').first()).data
-        return product
+    def get_image(self, instance):
+        try:
+            image = instance.product_set.order_by('-orders')\
+                .first().option_set.first()\
+                    .productimage_set.first().image.url
+        except:
+            image = instance.image.url
+        return image
 
 
 class SubCategoryWithOffer(SubCategorySerializer):
     max_discount = SerializerMethodField()
     min_discount = SerializerMethodField()
-    product = SerializerMethodField()
     image = SerializerMethodField()
     
     def get_max_discount(self, instance):
@@ -78,10 +91,6 @@ class SubCategoryWithOffer(SubCategorySerializer):
     def get_min_discount(self, instance):
         min_price = instance.product_set.aggregate(models.Avg('discount'))
         return min_price
-
-    def get_product(self, instance):
-        product = ProductWithOptionSerializer(instance.product_set.order_by('-orders').first()).data
-        return product
     
     def get_image(self, instance):
         try:
@@ -96,7 +105,7 @@ class SubCategoryWithOffer(SubCategorySerializer):
 class BrandSerializerWithOffer(BrandSerializer):
     max_price = SerializerMethodField()
     min_price = SerializerMethodField()
-    product = SerializerMethodField()
+    product_image = SerializerMethodField()
     products_count = SerializerMethodField()
     
     def get_max_price(self, instance):
@@ -107,9 +116,14 @@ class BrandSerializerWithOffer(BrandSerializer):
         min_price = instance.product_set.aggregate(models.Min('sale_price'))
         return min_price
 
-    def get_product(self, instance):
-        product = ProductWithOptionSerializer(instance.product_set.order_by('-orders').first()).data
-        return product
+    def get_product_image(self, instance):
+        try:
+            image = instance.product_set.order_by('-orders')\
+                .first().option_set.first()\
+                    .productimage_set.first().image.url
+        except:
+            image = instance.image.url
+        return image
     
     def get_products_count(self, instance):
         return instance.product_set.count()

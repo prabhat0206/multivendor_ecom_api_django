@@ -1,6 +1,19 @@
 from django.db import models
 from users.models import User
 import string, random
+from typing import Any
+
+
+class CustomManager(models.Manager):
+    
+    def all(self):
+        return super().all().exclude(is_deleted=True)
+    
+    def filter(self, *args: Any, **kwargs: Any):
+        return super().filter(*args, **kwargs).exclude(is_deleted=True)
+    
+    def get(self, *args: Any, **kwargs: Any):
+        return super().get(*args, **kwargs).exclude(is_deleted=True)
 
 class Banner(models.Model):
     id = models.AutoField(primary_key=True)
@@ -14,6 +27,9 @@ class Category(models.Model):
     image = models.ImageField(upload_to='category')
     orders = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = CustomManager()
 
     def __str__(self):
         return self.name
@@ -26,6 +42,9 @@ class SubCategory(models.Model):
     image = models.ImageField(upload_to='subcategory')
     orders = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = CustomManager()
 
     def __str__(self):
         return self.name
@@ -36,9 +55,12 @@ class Brand(models.Model):
     orders = models.IntegerField(default=0)
     image = models.ImageField(upload_to='brands')
     is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    objects = CustomManager()
 
 
 class Gender(models.Model):
@@ -78,7 +100,10 @@ class Product(models.Model):
     user = models.ManyToManyField(User, blank=True)
     slug = models.SlugField(unique=True, null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="of_products")
+
+    objects = CustomManager()
 
     def save(self, *args, **kwargs):
         self.tag = self.description.split(' ')
@@ -95,19 +120,28 @@ class Option(models.Model):
     unit_size = models.CharField(max_length=255)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     in_stock = models.IntegerField(default=100)
+    created_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
+
+    objects = CustomManager()
 
 
 class ProductImage(models.Model):
     img_id = models.AutoField(primary_key=True)
     image = models.ImageField(upload_to='product')
     option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.product = self.option.product
+        super(ProductImage, self).save(*args, **kwargs)
 
 
 class Review(models.Model):
     id = models.AutoField(primary_key=True)
-    reviewer_name = models.CharField(max_length=255)
-    reviewer_message = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
     rating = models.DecimalField(decimal_places=1, max_digits=2, default=1.0)
     is_verified = models.BooleanField(default=False)
