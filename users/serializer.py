@@ -49,7 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
     def get_product_count(self, obj):
-        return obj.product_set.count()
+        return obj.of_products.count()
 
 
 class OptionSerializerWithProduct(OptionSerializer):
