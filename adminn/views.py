@@ -1,12 +1,12 @@
 from rest_framework import generics
-from client.serializer import ProductWithOptionSerializer
+from client.serializer import ProductWithOptionSerializer, ProductWithReviewAndOption
 from .models import *
 from .serializers import *
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.parsers import FormParser, MultiPartParser
 from client.models import Order, MidOrder
-from users.serializer import MidOrderWithOrder, OrderWithMidOrder, UserSerializer
+from users.serializer import MidOrderWithOrder, UserSerializer
 
 
 class CreateWithAuthentication(generics.ListCreateAPIView):
@@ -193,4 +193,10 @@ class OptionUpdateDeleteApi(generics.RetrieveUpdateDestroyAPIView):
 class ImageUpdateDeleteApi(generics.RetrieveUpdateDestroyAPIView):
     queryset = ProductImage.objects.all()
     serializer_class = ImageSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AllProductApi(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductWithReviewAndOption
     permission_classes = [IsAdminUser]
