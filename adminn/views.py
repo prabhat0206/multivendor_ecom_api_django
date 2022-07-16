@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.parsers import FormParser, MultiPartParser
 from client.models import Order, MidOrder
-from users.serializer import MidOrderWithOrder, UserSerializer
+from users.serializer import MidOrderWithOrder, MidOrderWithStatusSerializer, UserSerializer
 
 
 class CreateWithAuthentication(generics.ListCreateAPIView):
@@ -107,7 +107,7 @@ class OrderByStatus(generics.ListAPIView):
 
 class OrderView(generics.RetrieveAPIView):
     queryset = MidOrder.objects.all()
-    serializer_class = MidOrderWithOrder
+    serializer_class = MidOrderWithStatusSerializer
     permission_classes = [IsAdminUser]
 
 
