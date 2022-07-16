@@ -107,3 +107,16 @@ class OrderWithUser(OrderSerializer):
 
 class MidOrderWithOrder(MidOrderSerializer):
     order = OrderWithUser()
+
+
+class MidOrderWithProductAndStatus(MidOrderSerializer):
+    details = serializers.SerializerMethodField()
+    orderstatus_set = OrderStatusSerializer(many=True)
+
+    def get_details(self, obj):
+        return OptionSerializerWithProduct(obj.product).data
+
+
+class OrderWithMidOrderAndStatus(OrderWithUser):
+    midorder_set = MidOrderWithProductAndStatus(many=True)
+
