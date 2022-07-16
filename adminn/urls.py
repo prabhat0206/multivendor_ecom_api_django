@@ -27,5 +27,5 @@ urlpatterns = [
     path('option/<int:pk>', OptionUpdateDeleteApi.as_view(), name="option_edit"),
     path('image', ImageApi.as_view(), name="image"),
     path('image/<int:pk>', ImageUpdateDeleteApi.as_view(), name="image_edit"),
-    path('all_products', AllProductApi.as_view(), name="all_products"),')
+    path('all_products', AllProductApi.as_view(), name="all_products")
 ]
