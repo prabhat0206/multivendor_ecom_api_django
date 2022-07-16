@@ -14,7 +14,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
+    product_count = serializers.SerializerMethodField()
     class Meta:
         model = User
         exclude = ['user_permissions', 'groups']
@@ -36,6 +36,9 @@ class UserSerializer(serializers.ModelSerializer):
             }, 
             'last_otp_email': {
                 'write_only': True
+            },
+            'product_count': {
+                'read_only': True
             }
         }
     
@@ -44,6 +47,9 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
+    def get_product_count(self, obj):
+        return obj.product_set.count()
 
 
 class OptionSerializerWithProduct(OptionSerializer):

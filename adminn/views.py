@@ -126,15 +126,8 @@ class AddVendor(generics.ListCreateAPIView):
     parser_classes = [FormParser, MultiPartParser]
     permission_classes = [IsAdminUser]
 
-    def post(self, request):
-        data = request.data.dict()
-        data["vendor"] = True
-        serialized = self.serializer_class(data=data)
-        if serialized.is_valid():
-            serialized.save()
-            return Response({"success": True, "data": serialized.data})
-        else:
-            return Response({"success": False, "error": serialized.errors})
+    def perform_create(self, serializer):
+        serializer.save(vendor=True)
 
 
 class EditDeleteVendor(generics.RetrieveUpdateDestroyAPIView):
