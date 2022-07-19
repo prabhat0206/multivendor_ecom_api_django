@@ -5,6 +5,7 @@ from rest_framework import generics
 from client.serializer import *
 from rest_framework.response import Response
 from datetime import datetime
+from client.pagination import *
 import random
 from client.models import MidOrder
 
@@ -108,6 +109,7 @@ class ProductBySubCategory(generics.ListAPIView):
 
     queryset = SubCategory.objects.all()
     serializer_class = ProductWithOptionSerializer
+    pagination_class = SubCategoryMetadataPagination
 
     def get_queryset(self):
         try:
@@ -115,18 +117,6 @@ class ProductBySubCategory(generics.ListAPIView):
             return queryset
         except:
             return []
-
-    def get_paginated_response(self, data):
-        return Response({
-            'next': self.get_next_link(),
-            'previous': self.get_previous_link(),
-            'count': self.count,
-            'results': data,
-            'meta': {
-                "subcategory": self.queryset.filter(scid=self.kwargs.get("pk")).first().name,
-                "category": self.queryset.filter(scid=self.kwargs.get("pk")).first().category.name
-            }
-        })
 
 
 class ProductByCategory(ProductBySubCategory):
