@@ -13,8 +13,9 @@ class CustomManager(models.Manager):
         return super().filter(*args, **kwargs).exclude(is_deleted=True)
     
     def get(self, *args: Any, **kwargs: Any):
-        return super().get(*args, **kwargs).exclude(is_deleted=True)
-
+        return super().exclude(is_deleted=True).get(*args, **kwargs)
+    
+    
 class Banner(models.Model):
     id = models.AutoField(primary_key=True)
     image = models.ImageField(upload_to='banners')

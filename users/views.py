@@ -142,7 +142,7 @@ class CartApi(APIView):
 
     def post(self, request):
         cart = request.user.cart_set.all()
-        option = Option.objects.get(id=request.data.get("id"))
+        option = Option.objects.filter(id=request.data.get("id")).first()
         if option in cart:
             return JsonResponse({"success": False, "error": "Product already in cart"})
         data = request.data
