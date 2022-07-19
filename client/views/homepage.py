@@ -116,6 +116,18 @@ class ProductBySubCategory(generics.ListAPIView):
         except:
             return []
 
+    def get_paginated_response(self, data):
+        return Response({
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'count': self.count,
+            'results': data,
+            'meta': {
+                "subcategory": self.queryset.filter(scid=self.kwargs.get("pk")).first().name,
+                "category": self.queryset.filter(scid=self.kwargs.get("pk")).first().category.name
+            }
+        })
+
 
 class ProductByCategory(ProductBySubCategory):
     queryset = Category.objects.all()
