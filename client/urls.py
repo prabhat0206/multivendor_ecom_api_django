@@ -15,4 +15,6 @@ urlpatterns = [
     path('category_list', CategoryByOrders.as_view(), name="category_list"),
     path('sub_category_list', SubCategoryByOrders.as_view(), name="sub_category_list"),
     path('reviews', ReviewsByProductApi.as_view(), name="reviews"),
+    path('reviews_by_brand/<int:pk>', ReviewsByBrand.as_view(), name="reviews_by_brand"),
+    path('product_by_brand/<int:pk>', ProductByBrand.as_view(), name="product_by_brand"),
 ]

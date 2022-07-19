@@ -128,6 +128,32 @@ class ProductByCategory(ProductBySubCategory):
             return []
 
 
+class ProductByBrand(generics.ListAPIView):
+    
+        queryset = Brand.objects.all()
+        serializer_class = ProductWithOptionSerializer
+    
+        def get_queryset(self):
+            try:
+                queryset = self.queryset.filter(bid=self.kwargs.get("pk")).first().product_set.order_by('-orders')
+                return queryset
+            except:
+                return []
+
+
+class ReviewsByBrand(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        try:
+            queryset = self.queryset.filter(bid=self.kwargs.get("pk")).first().product_set.order_by('-orders')
+            queryset = Review.objects.filter(product__in=queryset)
+            return queryset
+        except:
+            return []
+
+
 class Banners(generics.ListAPIView):
     queryset = Banner.objects.all().filter(name="homepage")
     serializer_class = BannerSerializer
