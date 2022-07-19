@@ -1,11 +1,11 @@
 from urllib import response
 from adminn.models import *
 from rest_framework import generics
+from client.pagination import SubCategoryMetadataPagination
 # from django.db.models import Max, Min, F
 from client.serializer import *
 from rest_framework.response import Response
 from datetime import datetime
-from client.pagination import *
 import random
 from client.models import MidOrder
 
@@ -117,6 +117,16 @@ class ProductBySubCategory(generics.ListAPIView):
             return queryset
         except:
             return []
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serialized = self.serializer_class(queryset, many=True)
+        meta = {
+            "subcategory": self.queryset.filter(scid=self.kwargs.get("pk")).first().name,
+            "category": self.queryset.filter(scid=self.kwargs.get("pk")).first().category.name 
+        }
+        paginated = self.paginate_queryset(serialized.data)
+        return self.get_paginated_response({"results": paginated, "meta": meta, "count": queryset.count()})
 
 
 class ProductByCategory(ProductBySubCategory):
