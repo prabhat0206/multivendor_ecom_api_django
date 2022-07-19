@@ -14,6 +14,8 @@ class ProductWithOptionSerializer(ProductSerializer):
     review_count = SerializerMethodField()
     image = SerializerMethodField()
     brand = BrandSerializer()
+    category_detail = SerializerMethodField()
+    subcategory_detail = SerializerMethodField()
 
     def get_review_count(self, instance):
         return len(instance.review_set.all())
@@ -25,6 +27,20 @@ class ProductWithOptionSerializer(ProductSerializer):
         except:
             image = ""
         return image
+
+    def get_category_detail(self, instance):
+        try:
+            category = instance.category.name
+        except:
+            category = ""
+        return category
+    
+    def get_subcategory_detail(self, instance):
+        try:
+            subcategory = instance.subcategory.name
+        except:
+            subcategory = ""
+        return subcategory
 
 
 class ProductWithReviewAndOption(ProductWithOptionSerializer):
