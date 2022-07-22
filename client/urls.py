@@ -17,4 +17,5 @@ urlpatterns = [
     path('reviews', ReviewsByProductApi.as_view(), name="reviews"),
     path('reviews_by_brand/<int:pk>', ReviewsByBrand.as_view(), name="reviews_by_brand"),
     path('product_by_brand/<int:pk>', ProductByBrand.as_view(), name="product_by_brand"),
+    path('order_id', OrderID.as_view(), name="order_id"),
 ]

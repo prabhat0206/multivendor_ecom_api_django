@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+import razorpay
 from dotenv import load_dotenv
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,7 +29,7 @@ SECRET_KEY = 'django-insecure-$297$0+xo-us6r4g55fg@)n+id(wnkfg56iz_s1$55aq@p#0q9
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+CLIENT = razorpay.Client(auth=(os.environ.get("RZ_KEY"), os.environ.get("RZ_SECRET")))
 
 # Application definition
 
