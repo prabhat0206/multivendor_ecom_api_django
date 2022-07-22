@@ -70,9 +70,17 @@ class OrderApi(generics.ListCreateAPIView):
         if not address:
             return Response({"success": False, "error": "Invalid address"})
         
-        # TODO: ADD RAZORPAY CHECK
-        if data.get("payment_method") != "COD":
-            pass
+        # signature
+        # rz_payment_id
+        # rz_order_id
+        if data['payment_method'] != 'cod':
+            rz_data = {
+                'razorpay_order_id': data.get('rz_order_id'),
+                'razorpay_payment_id': data.get('rz_payment_id'),
+                'razorpay_signature': data.get('signature')
+            }
+            if not (settings.CLIENT.utility.verify_payment_signature(rz_data)):
+                return Response({"success": False, "error": "payment id not valid"})
         
         data["address"] = f"{address.name}, {address.address_1}, {address.address_2}, {address.city}, {address.state}, {address.country}, {address.ph_number}"
         order = OrderSerializer(data=data)
