@@ -14,7 +14,8 @@ from rest_framework.decorators import api_view, permission_classes
 from django.core.mail import send_mail
 from rest_framework.parsers import FormParser, MultiPartParser
 import vonage, os
-
+from django.conf import settings
+print(f"EMAIL_HOST = {settings.EMAIL_HOST}")
 
 client = vonage.Client(key=os.environ.get("SMS_KEY"), secret=os.environ.get("SMS_SECRET"))
 sms = vonage.Sms(client)
