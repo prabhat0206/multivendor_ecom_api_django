@@ -37,7 +37,7 @@ def send_otp(ph_number, otp):
 
 def send_email(email, subject, otp):
     message = f"This is verification code for your vimani account.\n\n{otp}"
-    send_mail(subject, message, 'info@codencrafts.live', [email], fail_silently=False)
+    send_mail(subject, message, 'Vimani Pvt. <noreply@codencrafts.live>', [email], fail_silently=False)
 
 
 class UserDetails(generics.RetrieveAPIView):
