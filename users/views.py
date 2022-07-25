@@ -11,6 +11,32 @@ from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 from adminn.models import Option
 from rest_framework.decorators import api_view, permission_classes
+from django.core.mail import send_mail
+from rest_framework.parsers import FormParser, MultiPartParser
+import vonage, os
+
+
+client = vonage.Client(key=os.environ.get("SMS_KEY"), secret=os.environ.get("SMS_SECRET"))
+sms = vonage.Sms(client)
+
+
+def generate__otp():
+    otp = random.randint(100000, 999999)
+    return otp
+
+
+def send_otp(ph_number, otp):
+    response = sms.send_message({
+        'from': 'VIMANI',
+        'to': ph_number,
+        'text': f"Your OTP is {otp}",
+    })
+    return response
+
+
+def send_email(email, subject, otp):
+    message = f"This is verification code for your vimani account.\n\n{otp}"
+    send_mail(subject, message, '', [email], fail_silently=False)
 
 
 class UserDetails(generics.RetrieveAPIView):
@@ -26,6 +52,58 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    def post(self, request):
+        data = request.data
+        data["is_email_verified"] = False
+        data["is_mobile_verified"] = False
+        data["active"] = False
+        data["last_otp_email"] = generate__otp()
+        data["last_otp_ph_number"] = generate__otp()
+        serializer = self.serializer_class(data=data)
+        res = send_otp(data["ph_number"], data["last_otp_ph_number"])
+        print(res)
+        if res["messages"][0]["status"] != "0":
+            return Response({"error": "Something went wrong. Please try again later."})
+        if serializer.is_valid():
+            serializer.save()
+            send_email(data["email"], "Vimani OTP", data["last_otp_email"])
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def verify_otp(request):
+    data = request.data
+    user = User.objects.get(ph_number=data["ph_number"])
+    email_verified = user.is_email_verified
+    mobile_verified = user.is_mobile_verified
+    if user.last_otp_email == int(data["email_otp"]):
+        user.is_email_verified = True
+        user.save()
+        email_verified = True
+    if user.last_otp_ph_number == int(data["mobile_otp"]):
+        user.is_mobile_verified = True
+        user.save()
+        mobile_verified = True
+    if email_verified and mobile_verified:
+        user.active = True
+        user.save()
+        return Response({"success": "Your account has been verified.", "user": UserSerializer(user).data, "token": user.auth_token.key})
+    return JsonResponse({"status": "failure", "email": email_verified, "mobile": mobile_verified})
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def resend_otp(request):
+    data = request.data
+    user = User.objects.get(ph_number=data["ph_number"])
+    res = send_otp(str(user.ph_number).replace("+",""), user.last_otp_ph_number)
+    if res["messages"][0]["status"] != "0":
+        return Response({"error": "Something went wrong. Please try again later."})
+    send_email(user.email, "Vimani OTP", user.last_otp_email)
+    return JsonResponse({"status": "success"})
 
 
 class AddressApi(generics.ListCreateAPIView):
@@ -222,7 +300,15 @@ def login_with_ph_number(request):
     if (user):
         if user.check_password(data["password"]):
             try:
-                return Response({"success": True, "token": user.auth_token.key, "user": UserSerializer(user).data})
+                if user.is_email_verified and user.is_mobile_verified:
+                    return Response({"success": True, "token": user.auth_token.key, "user": UserSerializer(user).data})
+                else:
+                    user.last_otp_email = generate__otp()
+                    user.last_otp_ph_number = generate__otp()
+                    user.save()
+                    send_otp(str(user.ph_number), user.last_otp_ph_number)
+                    send_email(user.email, "Vimani OTP", user.last_otp_email)
+                    return Response({"success": False, "error": "Please verify your email and phone number"})
             except Exception as e:
                 print(e)
     return Response({"success": False, "error": "Server unable to authenticate you"})
@@ -239,3 +325,42 @@ def change_password(request):
             user.save()
             return Response({"success": True})
     return Response({"success": False, "error": "Server unable to authenticate you"})
+
+
+class UploadProfilePic(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        if user:
+            user.profile_pic = request.FILES.get("profile_pic")
+            user.save()
+            return Response({"success": True})
+        return Response({"success": False, "error": "Server unable to authenticate you"})
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def forget_password(request):
+    data = request.data
+    user = User.objects.filter(email=data.get('email')).first()
+    if (user):
+        user.last_otp_email = generate__otp()
+        user.save()
+        send_email(user.email, "Vimani OTP", user.last_otp_email)
+        return Response({"success": True})
+    return Response({"success": False, "error": "Server unable to authenticate you"})
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def change_password_forget(request):
+    data = request.data
+    user = User.objects.filter(email=data.get('email')).first()
+    if (user):
+        if user.last_otp_email == int(data.get('otp')):
+            user.set_password(data["new_password"])
+            user.save()
+            return Response({"success": True})
+    return Response({"success": False, "error": "Server unable to authenticate you"})
+

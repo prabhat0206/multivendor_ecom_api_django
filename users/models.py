@@ -79,8 +79,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     referal_code = models.CharField(max_length=10, null=True, blank=True)
     earned_points = models.IntegerField(default=0)
     date_of_birth = models.DateField(null=True, blank=True)
-    last_otp_ph_number = models.IntegerField(null=True, blank=True)
     last_otp_email = models.IntegerField(null=True, blank=True)
+    is_email_verified = models.BooleanField(default=False)
+    last_otp_ph_number = models.IntegerField(null=True, blank=True)
+    is_mobile_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'username'

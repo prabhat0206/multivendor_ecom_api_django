@@ -33,12 +33,15 @@ class UserSerializer(serializers.ModelSerializer):
             }, 
             'last_otp_ph_number': {
                 'write_only': True
-            }, 
+            },
             'last_otp_email': {
                 'write_only': True
             },
             'product_count': {
                 'read_only': True
+            },
+            'request_id': {
+                'write_only': True
             }
         }
     
