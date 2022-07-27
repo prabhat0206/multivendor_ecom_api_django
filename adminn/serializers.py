@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from adminn.models import *
+from django.db import models
 
 
 class BannerSerializer(ModelSerializer):
@@ -32,9 +33,23 @@ class SubCategorySerializer(ModelSerializer):
         return instance.product_set.count()
 
 class BrandSerializer(ModelSerializer):
+    review_count = SerializerMethodField()
+    average_rating = SerializerMethodField()
     class Meta:
         model = Brand
         fields = '__all__'
+        extra_kwargs = {
+            'review_count': {'read_only': True},
+            'average_rating': {'read_only': True}
+        }
+
+    def get_review_count(self, instance):
+        return Review.objects.filter(product__brand=instance).count()
+    
+    def get_average_rating(self, instance):
+        return Review.objects.filter(product__brand=instance).aggregate(average_rating=models.Avg('rating'))['average_rating']
+
+
 
 class GenderSerializer(ModelSerializer):
     class Meta:

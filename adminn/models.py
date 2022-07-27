@@ -54,6 +54,7 @@ class Brand(models.Model):
     bid = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     orders = models.IntegerField(default=0)
+    description = models.TextField(default='')
     image = models.ImageField(upload_to='brands')
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
