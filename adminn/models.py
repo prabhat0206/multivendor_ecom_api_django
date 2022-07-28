@@ -94,6 +94,7 @@ class Product(models.Model):
     sale_price = models.IntegerField()
     discount = models.IntegerField(blank=True, null=True)
     orders = models.IntegerField(default=0)
+    expected_pincodes = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
