@@ -33,7 +33,7 @@ class TopViewOfHomePage(generics.ListAPIView):
         current_month = datetime.now().month
         top_view = HomePageModel.objects.filter(position=position).first()
         if top_view:
-            keys = top_view.categories
+            keys = top_view.categories.all()
         else:
             keys = [{"key": "Footwear", "name": "Footwear"}, {"key":"Clothing & Accessories", "name": "Indian Ethic Wear"}, {"key": "Electronics", "name": "Cool down the Heat"}]
         filter_key = "Summer" if current_month > 3 and current_month < 9 else "Winter"
