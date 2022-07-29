@@ -53,7 +53,7 @@ class TopViewOfHomePage(generics.ListAPIView):
                     sub_categories.append(product.subcategory)
             title = ""
             if sale:
-                title = f"{sale.title} | {category.name}"
+                title = f"{sale.name} | {category.name}"
             else: 
                 title = "Super {} sale | {}".format(filter_key, category.name)
 
