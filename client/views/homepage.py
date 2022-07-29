@@ -29,25 +29,36 @@ class TopViewOfHomePage(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = SubCategoryWithOffer
 
-    def get(self, request):
+    def get(self, request, position="top"):
         current_month = datetime.now().month
-        keys = [{"key": "Footwear", "name": "Footwear"}, {"key":"Clothing & Accessories", "name": "Indian Ethic Wear"}, {"key": "Electronics", "name": "Cool down the Heat"}]
+        top_view = HomePageModel.objects.filter(position=position).first()
+        if top_view:
+            keys = top_view.categories
+        else:
+            keys = [{"key": "Footwear", "name": "Footwear"}, {"key":"Clothing & Accessories", "name": "Indian Ethic Wear"}, {"key": "Electronics", "name": "Cool down the Heat"}]
         filter_key = "Summer" if current_month > 3 and current_month < 9 else "Winter"
         response = []
+        sale = Sales.objects.filter(end_date__gte=datetime.now()).first()
         random.shuffle(keys)
         for key in keys:
-            category = Category.objects.filter(name=key.get("key")).first()
-            footwear_products = self.get_queryset().filter(category=category)\
+            category = Category.objects.filter(name=key.get("key")).first() if not top_view else key
+            products = self.get_queryset().filter(category=category)\
                 .filter(season__in=['all', filter_key.lower()])\
                     .order_by('-orders').order_by('-discount').all()
             sub_categories = []
-            for product in footwear_products:
+            for product in products:
                 if len(sub_categories) == 4:
                     break
                 if product.subcategory not in sub_categories:
                     sub_categories.append(product.subcategory)
+            title = ""
+            if sale:
+                title = f"{sale.title} | {category.name}"
+            else: 
+                title = "Super {} sale | {}".format(filter_key, category.name)
+
             serialized_subCategory = {
-                "title": "Super {} sale | {}".format(filter_key, key.get("name")),
+                "title": title,
                 "products": self.serializer_class(sub_categories, many=True).data
             }
             response.append(serialized_subCategory)
@@ -58,6 +69,10 @@ class ProductPageView(generics.RetrieveAPIView):
     
     queryset = Product.objects.all()
     serializer_class = ProductWithReviewAndOption
+
+    def get_object(self):
+        slug = self.kwargs.get("slug")
+        return self.queryset.filter(slug=slug).first()
 
 
 class RecommendedForYou(generics.ListAPIView):

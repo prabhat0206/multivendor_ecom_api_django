@@ -81,7 +81,7 @@ def generate_slug(name):
     slug += "-"
     for _ in range(8):
         slug += random.choice(string.ascii_uppercase)
-    return slug
+    return slug.lower()
 
 
 class Product(models.Model):
@@ -149,3 +149,23 @@ class Review(models.Model):
     rating = models.DecimalField(decimal_places=1, max_digits=2, default=1.0)
     is_verified = models.BooleanField(default=False)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+
+
+CHOICES = (
+    ("top", "Top Region"),
+    ("bottom", "Bottom Region"),
+)
+
+class HomePageModel(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    position = models.CharField(max_length=255, choices=CHOICES)
+    categories = models.ManyToManyField(Category)
+
+
+class Sales(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
