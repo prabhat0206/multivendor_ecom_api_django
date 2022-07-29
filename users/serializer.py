@@ -96,9 +96,13 @@ class UserWithLimit(serializers.ModelSerializer):
 
 
 class OrderWithLimit(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
     class Meta:
         model = Order
-        fields = ["oid", "address", "payment_method", "date_time"]
+        fields = ["oid", "address", "payment_method", "date_time", "user_name"]
+    
+    def get_user_name(self, obj):
+        return obj.address.split(",")[0]
 
 
 class MidOrderWithStatusSerializer(MidOrderSerializer):
