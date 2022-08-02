@@ -222,6 +222,8 @@ class UpdateStatus(generics.UpdateAPIView):
             return Response(400)
         mid = self.get_object()
         if mid:
+            if "cancel" in data["status"]:
+                mid.is_canceled = True
             mid.status = data["status"]
             mid.save()
             status = OrderStatusSerializer(data={"status": data["status"], "midorder": mid.mid})
