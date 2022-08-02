@@ -133,6 +133,7 @@ class Address(models.Model):
     country = models.CharField(max_length=100)
     ph_number = PhoneNumberField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    default = models.BooleanField(default=False)
 
 
 class VendorShop(models.Model):

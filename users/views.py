@@ -152,7 +152,7 @@ class OrderApi(generics.ListCreateAPIView):
         # signature
         # rz_payment_id
         # rz_order_id
-        if data['payment_method'] != 'cod':
+        if data['payment_method'].lower() != 'cod':
             rz_data = {
                 'razorpay_order_id': data.get('rz_order_id'),
                 'razorpay_payment_id': data.get('rz_payment_id'),
@@ -214,7 +214,31 @@ class UpdateStatus(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return super().get_object().filter(user=self.request.user).filter(mid=self.kwargs.get("pk")).first()
+        return self.get_queryset().filter(order__user=self.request.user).filter(mid=self.kwargs.get("pk")).first()
+
+    def update(self, request, *args, **kwargs):
+        data = request.data
+        if not data or "status" not in data:
+            return Response(400)
+        mid = self.get_object()
+        if mid:
+            mid.status = data["status"]
+            mid.save()
+            status = OrderStatusSerializer(data={"status": data["status"], "midorder": mid.mid})
+            if status.is_valid():
+                status.save()
+                return Response({"success": True, "data": status.data})
+            return Response({"success": False, "error": status.errors})
+        return Response({"success": False, "error": "Mid order not found"})
+
+
+class OrderByStatus(generics.ListAPIView):
+    queryset = MidOrder.objects.all()
+    serializer_class = MidOrderWithStatusSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return super().get_queryset().filter(order__user=self.request.user).filter(status=self.request.GET.get("status"))
 
 
 class CartApi(APIView):

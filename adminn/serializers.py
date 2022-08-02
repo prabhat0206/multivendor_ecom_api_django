@@ -57,9 +57,16 @@ class GenderSerializer(ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(ModelSerializer):
+    image = SerializerMethodField()
     class Meta:
         model = Product
         exclude = ["user"]
+        extra_kwargs = {
+            'image': {'read_only': True},
+        }
+    
+    def get_image(self, instance):
+        return instance.productimage_set.first().image.url
 
 class OptionSerializer(ModelSerializer):
     class Meta:
