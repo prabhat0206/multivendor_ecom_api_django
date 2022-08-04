@@ -270,7 +270,7 @@ class CartApi(APIView):
     
     def put(self, request):
         try:
-            cart_product = request.user.cart_set.all().get(id=request.data.get("id"))
+            cart_product = request.user.cart_set.all().get(option=request.data.get("id"))
         except:
             return HttpResponse(404)
         if cart_product:
@@ -280,7 +280,7 @@ class CartApi(APIView):
         else: return HttpResponse(404)
     
     def delete(self, request):
-        cart_product = request.user.cart_set.all().get(id=request.GET.get("id"))
+        cart_product = request.user.cart_set.all().get(option=request.GET.get("id"))
         if cart_product:
             cart_product.delete()
             return JsonResponse({"success": True}, safe=False)
