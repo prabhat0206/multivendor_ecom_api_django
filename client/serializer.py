@@ -1,6 +1,7 @@
 from rest_framework.serializers import *
 from adminn.models import *
 from adminn.serializers import *
+from client.models import Coupon
 
 
 class OptionSerializerWithImage(OptionSerializer):
@@ -144,3 +145,8 @@ class BrandSerializerWithOffer(BrandSerializer):
     def get_products_count(self, instance):
         return instance.product_set.count()
 
+
+class CouponSerializer(ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = '__all__'

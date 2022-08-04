@@ -20,4 +20,5 @@ urlpatterns = [
     path("profile_pic", UploadProfilePic.as_view(), name="profile"),
     path("forget_password", forget_password, name="forget_password"),
     path("verify_otp_forget_password", change_password_forget, name="verify_otp_forget_password"),
+    path("coupon", GetCoupons.as_view(), name="coupon"),
 ]

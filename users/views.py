@@ -1,7 +1,8 @@
 from rest_framework import generics
 from rest_framework.views import APIView
 from adminn.models import Product
-from client.serializer import ProductWithOptionSerializer
+from client.models import Coupon
+from client.serializer import CouponSerializer, ProductWithOptionSerializer
 from .serializer import *
 from adminn.serializers import ProductSerializer
 from .models import *
@@ -391,3 +392,7 @@ def change_password_forget(request):
             return Response({"success": True})
     return Response({"success": False, "error": "Server unable to authenticate you"})
 
+
+class GetCoupons(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CouponSerializer

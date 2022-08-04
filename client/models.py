@@ -49,3 +49,12 @@ class OrderStatus(models.Model):
     status = models.CharField(max_length=255)
     date_time = models.DateTimeField(auto_now_add=True)
     midorder = models.ForeignKey(MidOrder, on_delete=models.CASCADE)
+
+
+class Coupon(models.Model):
+    id = models.AutoField(primary_key=True)
+    coupon_code = models.CharField(max_length=255)
+    discount = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    date_time = models.DateTimeField(auto_now_add=True)
+    valid_till = models.DateTimeField()
