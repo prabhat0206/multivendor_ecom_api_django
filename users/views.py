@@ -394,5 +394,6 @@ def change_password_forget(request):
 
 
 class GetCoupons(generics.ListAPIView):
+    queryset = Coupon.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = CouponSerializer
