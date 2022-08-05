@@ -403,3 +403,18 @@ class GetCouponById(generics.RetrieveAPIView):
     queryset = Coupon.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = CouponSerializer
+
+
+class UpdateProfile(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data= request.data
+        if user:
+            user_ser = UserSerializer(user, data=data, partial=True)
+            if user_ser.is_valid():
+                user_ser.save()
+                return Response({"success": True})
+            return Response({"success": False, "error": user_ser.errors})
+        return Response({"success": False, "error": "Server unable to authenticate you"})
