@@ -19,10 +19,10 @@ def get_search_parameter(request):
         return Response(400)
     top_brands = Brand.objects.filter(Q(product__name__icontains=query)|Q(product__subcategory__name__icontains=query)|Q(product__category__name__icontains=query)).order_by("-orders")[:5]
     top_brands = [brand.name for brand in top_brands]
-    genders = Gender.objects.all()
     genders = [gender.name for gender in genders]
-    sizes = Product.objects.filter(Q(product__name__icontains=query)|Q(product__subcategory__name__icontains=query)|Q(product__category__name__icontains=query) | Q(name__icontains=query)).values_list('option__unit_size', flat=True).distinct()
-    colors = Product.objects.filter(Q(product__name__icontains=query)|Q(product__subcategory__name__icontains=query)|Q(product__category__name__icontains=query) | Q(name__icontains=query)).values_list('option__color', flat=True).distinct()
+    sizes = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('option__unit_size', flat=True).distinct()
+    colors = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('option__color', flat=True).distinct()
+    genders = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('gender', flat=True).distinct()
     price_range = [5000, 10000, 20000, 50000]
     return Response({
         "res": [
