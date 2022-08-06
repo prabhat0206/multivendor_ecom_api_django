@@ -21,7 +21,7 @@ def get_search_parameter(request):
     top_brands = [brand.name for brand in top_brands]
     sizes = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('option__unit_size', flat=True).distinct()
     colors = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('option__color', flat=True).distinct()
-    genders = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('gender', flat=True).distinct()
+    genders = Product.objects.filter(Q(brand__name__icontains=query)|Q(subcategory__name__icontains=query)|Q(category__name__icontains=query) | Q(name__icontains=query)).values_list('gender__name', flat=True).distinct()
     price_range = [5000, 10000, 20000, 50000]
     return Response({
         "res": [
