@@ -18,10 +18,29 @@ def get_search_parameter(request):
     if not query:
         return Response(400)
     top_brands = Brand.objects.filter(Q(product__name__icontains=query)|Q(product__subcategory__name__icontains=query)|Q(product__category__name__icontains=query)).order_by("-orders")[:5]
+    top_brands = [brand.name for brand in top_brands]
     genders = Gender.objects.all()
+    genders = [gender.name for gender in genders]
+    sizes = Product.objects.filter(name__icontains=query).values_list('option__unit_size', flat=True).distinct()
+    colors = Product.objects.filter(name__icontains=query).values_list('option__color', flat=True).distinct()
+    price_range = [5000, 10000, 20000, 50000]
     return Response({
-        "top_brands": BrandSerializer(top_brands, many=True).data,
-        "genders": GenderSerializer(genders, many=True).data
+        "res": [
+            {
+                "name": "Top Brands",
+                "value": top_brands,
+            }, 
+            {
+                "name": "Genders", "value": genders
+            }, 
+            {
+                "name": "Sizes", "value": sizes
+            }, {
+                "name": "Colors", "value": colors
+            }, {
+                "name": "Price Range", "value": price_range
+            }
+        ]
     })
 
 
@@ -33,8 +52,8 @@ class SearchPageView(ListAPIView):
         query = request.GET.get('q', "")
         brand = request.GET.get('brand')
         price = request.GET.get('price')
-        # size = request.GET.get('size')
-        # color = request.GET.get('color')
+        size = request.GET.get('size')
+        color = request.GET.get('color')
         gender = request.GET.get('gender')
         sort_by = request.GET.get('sort_by')
         self.queryset = self.queryset
@@ -47,6 +66,10 @@ class SearchPageView(ListAPIView):
             self.queryset = self.queryset.filter(sale_price__gte=price)
         if gender:
             self.queryset = self.queryset.filter(gender__name__in=["all", gender])
+        if size:
+            self.queryset = self.queryset.filter(option__unit_size=size)
+        if color:
+            self.queryset = self.queryset.filter(option__color=color)
         if sort_by:
             if sort_by == "desc":
                 self.queryset = self.queryset.order_by("-sale_price")
