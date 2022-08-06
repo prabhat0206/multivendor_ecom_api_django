@@ -75,7 +75,8 @@ def calcuate_discount(data):
     return ((data.actual_price - data.sale_price) / data.actual_price) * 100
 
 def generate_slug(name):
-    slug = name.replace(' ', '-') + '-' 
+    slug = name.replace(' ', '-').replace("/", "") + '-'
+    slug = slug if len(slug) < 20 else slug[:20]
     for _ in range(0,8):
         slug += random.choice(string.ascii_letters)
     slug += "-"
