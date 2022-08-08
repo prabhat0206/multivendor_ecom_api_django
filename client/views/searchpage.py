@@ -29,14 +29,20 @@ def get_search_parameter(request):
                 "value": brands,
             }, 
             {
-                "name": "Genders", "value": genders
+                "name": "Genders", 
+                "value": genders
             }, 
             {
-                "name": "Sizes", "value": sizes
-            }, {
-                "name": "Colors", "value": colors
-            }, {
-                "name": "Price Range", "value": price_range
+                "name": "Sizes", 
+                "value": sizes
+            }, 
+            {
+                "name": "Colors", 
+                "value": colors
+            }, 
+            {
+                "name": "Price Range", 
+                "value": price_range
             }
         ]
     })
@@ -54,9 +60,12 @@ class SearchPageView(ListAPIView):
         color = request.GET.get('color')
         gender = request.GET.get('gender')
         sort_by = request.GET.get('sort_by')
+        sub = request.GET.get('sub')
         self.queryset = self.queryset
         if query:
-            q_filter = Q(name__icontains=query) | Q(brand__name__icontains=query) | Q(category__name__icontains=query) | Q(subcategory__name__icontains=query) | Q(description__icontains=query) | Q(specification__icontains=query)
+            q_filter = Q(subcategory__name__icontains=query)
+            if not sub:
+                q_filter = q_filter | Q(brand__name__icontains=query) | Q(name__icontains=query) | Q(category__name__icontains=query) | Q(description__icontains=query) | Q(specification__icontains=query)
             self.queryset = self.queryset.filter(q_filter)
         if brand:
             self.queryset = self.queryset.filter(brand__name=brand)
