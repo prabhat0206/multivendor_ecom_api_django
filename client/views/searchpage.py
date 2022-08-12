@@ -68,7 +68,7 @@ class SearchPageView(ListAPIView):
                 q_filter = q_filter | Q(brand__name__icontains=query) | Q(name__icontains=query) | Q(category__name__icontains=query) | Q(description__icontains=query) | Q(specification__icontains=query)
             self.queryset = self.queryset.filter(q_filter)
         if brand:
-            self.queryset = self.queryset.filter(brand__name=brand)
+            self.queryset = self.queryset.filter(brand__name__icontains=brand)
         if price:
             self.queryset = self.queryset.filter(sale_price__gte=price)
         if gender:

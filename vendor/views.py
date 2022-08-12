@@ -7,6 +7,27 @@ from adminn.serializers import *
 from client.models import MidOrder, Order
 from client.serializer import ProductWithOptionSerializer
 from users.serializer import MidOrderWithOrder
+from rest_framework.permissions import BasePermission
+
+
+class IsVendor(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.vendor
+
+class CustomListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsVendor]
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(vendor=self.request.user)
+
+    def get_object(self):
+        instance = self.get_queryset().filter(pid=self.kwargs.get("pk")).first()
+        if instance.vendor == self.request.vendor:
+            return instance
+        return Response(401)
+
+    def perform_create(self, serializer):
+        return serializer.save(vendor=self.request.user)
 
 class SubCategoryApi(generics.ListAPIView):
     queryset = SubCategory.objects.all()
@@ -20,27 +41,16 @@ class BrandApi(generics.ListAPIView):
     pagination_class = None
 
 
-class ProductApiVendor(generics.ListCreateAPIView):
+class ProductApiVendor(CustomListCreateAPIView):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-
-    def get_queryset(self):
-        return super().get_queryset().filter(vendor=self.request.user).order_by('-pid')
-
-    def post(self, request):
-        data = request.data.dict()
-        data["vendor"] = request.user.id
-        serialized = self.serializer_class(data=data)
-        if serialized.is_valid():
-            serialized.save()
-            return Response({"success": True, "data": serialized.data})
-        return Response({"success": False, "error": serialized.errors})
 
 
 class ProductUpdateDeleteAPi(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsVendor]
 
     def get_object(self):
         instance = self.get_queryset().filter(pid=self.kwargs.get("pk")).first()
@@ -58,6 +68,7 @@ class ProductUpdateDeleteAPi(generics.RetrieveUpdateDestroyAPIView):
 class OptionAPi(generics.ListCreateAPIView):
     queryset = Option.objects.all()
     serializer_class = OptionSerializer
+    permission_classes = [IsVendor]
 
     def post(self, request):
         data = request.data.dict()
@@ -77,6 +88,7 @@ class OptionUpdateDeleteApi(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = Option.objects.all()
     serializr_class = OptionSerializer
+    permission_classes = [IsVendor]
 
     def get_object(self):
         instance = self.get_queryset().filter(id=self.kwargs.get("pk")).first()
@@ -95,6 +107,7 @@ class ProductImageAPi(generics.ListCreateAPIView):
     queryset = ProductImage.objects.all()
     serializer_class = ImageSerializer
     parser_classes = [parsers.FormParser, parsers.MultiPartParser]
+    permission_classes = [IsVendor]
 
     def post(self, request):
         data = request._request.POST.dict()
@@ -117,6 +130,7 @@ class ProductImageAPi(generics.ListCreateAPIView):
 class ProductImageDelete(generics.DestroyAPIView):
     queryset = ProductImage.objects.all()
     serializer_class = ImageSerializer
+    permission_classes = [IsVendor]
 
     def get_object(self):
         instance = self.get_queryset().filter(img_id=self.kwargs.get("pk")).first()
@@ -128,7 +142,7 @@ class ProductImageDelete(generics.DestroyAPIView):
 class ProductWithReviewsCount(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductWithOptionSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsVendor]
 
     def get_queryset(self):
         return super().get_queryset().filter(vendor=self.request.user)
@@ -137,7 +151,7 @@ class ProductWithReviewsCount(generics.ListAPIView):
 class ReviewsViewByProduct(generics.ListAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsVendor]
 
     def get_queryset(self):
         return super().get_queryset().filter(product__vendor=self.request.user).order_by('-id')
@@ -145,7 +159,7 @@ class ReviewsViewByProduct(generics.ListAPIView):
 
 class EarningsVendor(views.APIView):
 
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsVendor]
 
     def get(self, request):
         earnings = request.user.product_set\
@@ -162,6 +176,7 @@ class EarningsVendor(views.APIView):
 class OrderByVendor(generics.ListAPIView):
     queryset = Order.objects.all()
     serializer_class = MidOrderWithOrder
+    permission_classes = [IsVendor]
 
     def get_queryset(self):
         return super().get_queryset().filter(product__vendor=self.request.vendor).order_by("-mid")
@@ -170,7 +185,7 @@ class OrderByVendor(generics.ListAPIView):
 class OrderByStatus(generics.ListAPIView):
     queryset = MidOrder.objects.all()
     serializer_class = MidOrderWithOrder
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsVendor]
 
     def get_queryset(self):
         return super().get_queryset().filter(product__vendor=self.request.user).filter(status=self.kwargs.get('status')).order_by('-mid')
