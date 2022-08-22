@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.views import APIView
 from client.serializer import ProductWithOptionSerializer, ProductWithReviewAndOption
 from .models import *
 from .serializers import *
@@ -138,8 +139,8 @@ class EditDeleteVendor(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.vendor = False
         instance.of_products.update(is_deleted=True)
+        instance.delete()
         return Response(204)
 
 
@@ -193,3 +194,20 @@ class AllProductApi(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductWithReviewAndOption
     permission_classes = [IsAdminUser]
+
+
+class BlockUsers(APIView):
+
+    queryset = User.objects.all()
+    permission_classes = [IsAdminUser]
+    
+    def post(self, request):
+        data = request.data
+        if "users" in data:
+            all_users_for_block = self.queryset.filter(id__in=data["users"])
+            for user in all_users_for_block:
+                user.active = False
+                user.save()
+            return Response({"success": True})
+        else:
+            return Response(400)
